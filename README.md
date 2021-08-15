@@ -16,4 +16,5 @@ certain things may not be the most optimally done.
 ## References
 - [Kotlin Docs](https://kotlinlang.org/docs/home.html)
 - [Ktor Docs](https://ktor.io/docs/welcome.html)
+- [Ktor API Sample](https://github.com/ktorio/ktor-http-api-sample)
 - [GraalVM](https://www.graalvm.org/)
