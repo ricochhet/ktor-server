@@ -66,6 +66,6 @@ fun Application.module(testing: Boolean = false) {
     registerGenericRoutes()
 
     // Sub routes
-    registerCustomerRoutes("auth-basic")
-    registerOrderRoutes("auth-basic")
+    registerCustomerRoutes()
+    registerOrderRoutes()
 }

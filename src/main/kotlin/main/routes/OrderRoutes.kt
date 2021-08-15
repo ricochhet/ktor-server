@@ -2,7 +2,6 @@ package main.routes
 
 import main.models.orderStorage
 import io.ktor.application.*
-import io.ktor.auth.*
 import io.ktor.http.*
 import io.ktor.response.*
 import io.ktor.routing.*
@@ -38,12 +37,10 @@ fun Route.totalizeOrderRoute() {
     }
 }
 
-fun Application.registerOrderRoutes(authType: String = "auth-basic") {
+fun Application.registerOrderRoutes() {
     routing {
-        authenticate(authType) {
-            listOrdersRoute()
-            getOrderRoute()
-            totalizeOrderRoute()
-        }
+        listOrdersRoute()
+        getOrderRoute()
+        totalizeOrderRoute()
     }
 }

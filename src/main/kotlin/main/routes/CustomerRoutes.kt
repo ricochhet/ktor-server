@@ -2,7 +2,6 @@ package main.routes
 
 import main.models.*
 import io.ktor.application.*
-import io.ktor.auth.*
 import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
@@ -31,9 +30,6 @@ fun Route.customerRouting() {
         }
         post {
             val customer = call.receive<Customer>()
-            // TODO - This shouldn't really be done in production as
-            // we should be accessing a mutable list in a thread-safe manner.
-            // However, in production code we wouldn't be using mutable lists as a database!
             customerStorage.add(customer)
             call.respondText("Customer stored correctly", status = HttpStatusCode.Created)
         }
@@ -49,10 +45,8 @@ fun Route.customerRouting() {
 }
 
 
-fun Application.registerCustomerRoutes(authType: String = "auth-basic") {
+fun Application.registerCustomerRoutes() {
     routing {
-        authenticate(authType) {
-            customerRouting()
-        }
+        customerRouting()
     }
 }
