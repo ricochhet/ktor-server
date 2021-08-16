@@ -1,15 +1,15 @@
 package main.routes
 
-import main.status.ROOT_MSG
-
 import io.ktor.application.*
 import io.ktor.response.*
 import io.ktor.routing.*
 
+import main.extensions.ROOT_MSG
+
 fun Route.genericRouting() {
     route("/") {
         get {
-            call.respondText(ROOT_MSG);
+            call.respond(ROOT_MSG);
         }
     }
 }

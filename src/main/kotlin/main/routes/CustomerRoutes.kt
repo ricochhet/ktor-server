@@ -13,32 +13,32 @@ fun Route.customerRouting() {
             if (customerStorage.isNotEmpty()) {
                 call.respond(customerStorage)
             } else {
-                call.respondText("No customers found", status = HttpStatusCode.NotFound)
+                call.respond(HttpStatusCode.NotFound, "No customers found")
             }
         }
         get("{id}") {
-            val id = call.parameters["id"] ?: return@get call.respondText(
-                "Missing or malformed id",
-                status = HttpStatusCode.BadRequest
+            val id = call.parameters["id"] ?: return@get call.respond(
+                HttpStatusCode.BadRequest,
+                "Missing or malformed id"
             )
             val customer =
-                customerStorage.find { it.id == id } ?: return@get call.respondText(
-                    "No customer with id $id",
-                    status = HttpStatusCode.NotFound
+                customerStorage.find { it.id == id } ?: return@get call.respond(
+                    HttpStatusCode.NotFound,
+                    "No customer with id $id"
                 )
             call.respond(customer)
         }
         post {
             val customer = call.receive<Customer>()
             customerStorage.add(customer)
-            call.respondText("Customer stored correctly", status = HttpStatusCode.Created)
+            call.respond(HttpStatusCode.Created, "Customer stored correctly")
         }
         delete("{id}") {
             val id = call.parameters["id"] ?: return@delete call.respond(HttpStatusCode.BadRequest)
             if (customerStorage.removeIf { it.id == id }) {
-                call.respondText("Customer removed correctly", status = HttpStatusCode.Accepted)
+                call.respond(HttpStatusCode.Accepted, "Customer removed correctly")
             } else {
-                call.respondText("Not Found", status = HttpStatusCode.NotFound)
+                call.respond(HttpStatusCode.NotFound, "Not Found")
             }
         }
     }

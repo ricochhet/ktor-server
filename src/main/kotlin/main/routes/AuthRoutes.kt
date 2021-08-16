@@ -22,7 +22,7 @@ fun Route.authRouting() {
         get("/success") {
             val userSession = call.principal<UserSession>()
             call.sessions.set(userSession?.copy(count = userSession.count + 1))
-            call.respondText("Success! Hello, ${userSession?.name}! Your visit count is ${userSession?.count}.")
+            call.respond("Success! Hello, ${userSession?.name}! Your visit count is ${userSession?.count}.")
         }
     }
 

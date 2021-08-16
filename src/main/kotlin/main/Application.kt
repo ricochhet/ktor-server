@@ -15,16 +15,21 @@ import io.ktor.http.*
 import io.ktor.response.*
 import io.ktor.serialization.*
 import io.ktor.sessions.*
-import main.status.statusHandler
+import main.extensions.statusHandler
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
 fun Application.module(testing: Boolean = false) {
+    install(CORS) {
+        anyHost()
+    }
+
     install(ContentNegotiation) {
         json()
     }
 
     install(Sessions) {
+        // Configure session cookies
         cookie<UserSession>("user_session") {
             cookie.path = "/"
             cookie.maxAgeInSeconds = 60
