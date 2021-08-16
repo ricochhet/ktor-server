@@ -14,6 +14,10 @@ certain things may not be the most optimally done.
 - Run `gradlew build` to install required dependencies and build the project.
 - To run, use `gradlew run` or right-click the `Application.kt` if you're using Intellij.
 
+## Testing
+- Download [Postman](https://www.postman.com/downloads/) to test the API routes.
+- Use [https://www.websocket.org/echo.html](https://www.websocket.org/echo.html) to test websockets.
+
 ## References
 - [Kotlin Docs](https://kotlinlang.org/docs/home.html)
 - [Ktor Docs](https://ktor.io/docs/welcome.html)

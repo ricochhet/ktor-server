@@ -23,6 +23,8 @@ import io.ktor.util.*
 import java.security.Security
 import org.slf4j.event.Level
 import io.github.cdimascio.dotenv.dotenv
+import io.ktor.websocket.*
+import socket.routes.registerSocketRoutes
 import java.io.File
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
@@ -103,11 +105,26 @@ fun Application.module(testing: Boolean = false) {
         statusHandler(HttpStatusCode.NotFound, HttpStatusCode.Unauthorized)
     }
 
-    // Main routes
-    registerAuthRoutes()
+    // This is technically optional, but since I want to expand this template
+    // for a project, I have to set it up here. Feel free to remove it. :)
+    install(WebSockets)
+
+    // Authentication routes
+    registerAuthRoutes(
+        baseAuthLevel = "auth-basic",
+        validAuthLevel = "auth-session",
+        baseAuthPath = "/login",
+        validAuthPath = "/success",
+        closeAuthPath = "/logout"
+    )
+
+    // Generic, non-specific routes
     registerGenericRoutes()
 
     // Sub routes
     registerCustomerRoutes()
     registerOrderRoutes()
+
+    // Web socket routes
+    registerSocketRoutes("auth-session", "/ws")
 }

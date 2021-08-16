@@ -26,9 +26,11 @@ dependencies {
     implementation("io.ktor:ktor-server-core:$ktor_version")
     implementation("io.ktor:ktor-server-netty:$ktor_version")
     implementation("io.ktor:ktor-server-sessions:$ktor_version")
-    implementation("ch.qos.logback:logback-classic:$logback_version")
     implementation("io.ktor:ktor-serialization:$ktor_version")
+    implementation("io.ktor:ktor-websockets:$ktor_version")
     implementation("io.ktor:ktor-auth:$ktor_version")
+
+    implementation("ch.qos.logback:logback-classic:$logback_version")
     implementation("io.github.cdimascio:dotenv-kotlin:$dotenv_version")
 
     testImplementation("io.ktor:ktor-server-tests:$ktor_version")

@@ -13,9 +13,10 @@ import util.standardDateFormat
 import util.toString
 import java.util.*
 
-fun Route.authRouting() {
-    authenticate("auth-basic") {
-        route("/login") {
+fun Route.authRouting(baseAuthLevel: String = "auth-basic", validAuthLevel: String = "auth-session", baseAuthPath: String = "/login", validAuthPath: String = "/success", closeAuthPath: String = "/logout") {
+    // Generally should use "auth-basic" level.
+    authenticate(baseAuthLevel) {
+        route(baseAuthPath) {
             get {
                 call.respond(HttpStatusCode.OK, "Session authentication")
             }
@@ -25,14 +26,15 @@ fun Route.authRouting() {
                 val expireDate = System.currentTimeMillis() + 900000
 
                 call.sessions.set(UserSession(name = userName, expiration = expireDate, count = 1))
-                call.respondRedirect("/success")
+                call.respondRedirect(validAuthPath)
             }
         }
     }
 
     // Generic example of limited session.
-    authenticate("auth-session") {
-        get("/success") {
+    // Generally should use "auth-session" for post-auth routes.
+    authenticate(validAuthLevel) {
+        get(validAuthPath) {
             val userSession = call.principal<UserSession>()
             val visit: Int = userSession?.count ?: 0
             val expiration: Long = userSession?.expiration ?: 0
@@ -46,16 +48,16 @@ fun Route.authRouting() {
         }
     }
 
-    route("/logout") {
+    route(closeAuthPath) {
         get {
             call.sessions.clear<UserSession>()
-            call.respondRedirect("/login")
+            call.respondRedirect(baseAuthPath)
         }
     }
 }
 
-fun Application.registerAuthRoutes() {
+fun Application.registerAuthRoutes(baseAuthLevel: String = "auth-basic", validAuthLevel: String = "auth-session", baseAuthPath: String = "/login", validAuthPath: String = "/success", closeAuthPath: String = "/logout") {
     routing {
-        authRouting()
+        authRouting(baseAuthLevel, validAuthLevel, baseAuthPath, validAuthPath, closeAuthPath)
     }
 }
