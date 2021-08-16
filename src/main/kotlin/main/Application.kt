@@ -105,10 +105,6 @@ fun Application.module(testing: Boolean = false) {
         statusHandler(HttpStatusCode.NotFound, HttpStatusCode.Unauthorized)
     }
 
-    // This is technically optional, but since I want to expand this template
-    // for a project, I have to set it up here. Feel free to remove it. :)
-    install(WebSockets)
-
     // Authentication routes
     registerAuthRoutes(
         baseAuthLevel = "auth-basic",
@@ -125,6 +121,10 @@ fun Application.module(testing: Boolean = false) {
     registerCustomerRoutes()
     registerOrderRoutes()
 
-    // Web socket routes
-    registerSocketRoutes("auth-session", "/ws")
+    // This is technically optional, but since I want to expand this template
+    // for a project, I have to set it up here. Feel free to remove it. :)
+    if (dotenv["USE_WS_SERVER"] == "TRUE") {
+        install(WebSockets)
+        registerSocketRoutes("/ws")
+    }
 }

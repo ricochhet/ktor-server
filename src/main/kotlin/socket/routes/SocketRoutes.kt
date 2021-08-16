@@ -22,7 +22,7 @@ fun Route.socketRouting(path: String) {
             for (frame in incoming) {
                 frame as? Frame.Text ?: continue
                 val received = frame.readText()
-                val message = "[${thisConnection.currentSocketID}]: $received"
+                val message = "SOCKET_${thisConnection.currentSocketID}: $received"
 
                 connections.forEach {
                     it.session.send(message)
@@ -36,9 +36,13 @@ fun Route.socketRouting(path: String) {
     }
 }
 
-fun Application.registerSocketRoutes(authLevel: String, path: String) {
+fun Application.registerSocketRoutes(path: String, forceAuth: Boolean = false, authLevel: String = "auth-session") {
     routing {
-        authenticate(authLevel) {
+        if (forceAuth) {
+            authenticate(authLevel) {
+                socketRouting(path)
+            }
+        } else {
             socketRouting(path)
         }
     }
