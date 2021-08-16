@@ -1,4 +1,4 @@
-package main.extensions
+package server.extensions
 
 import util.*
 import java.util.*
@@ -6,7 +6,6 @@ import java.util.*
 import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.http.*
-import io.ktor.http.content.*
 import io.ktor.response.*
 
 val date: Date = getCurrentDateTime()

@@ -1,4 +1,4 @@
-package main.models
+package server.models
 
 import io.ktor.auth.*
 import kotlinx.serialization.Serializable

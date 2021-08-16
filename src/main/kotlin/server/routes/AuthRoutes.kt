@@ -1,4 +1,4 @@
-package main.routes
+package server.routes
 
 import io.ktor.application.*
 import io.ktor.auth.*
@@ -6,9 +6,9 @@ import io.ktor.http.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.sessions.*
-import main.extensions.isSessionExpired
-import main.extensions.isSessionRatelimited
-import main.models.UserSession
+import server.extensions.isSessionExpired
+import server.extensions.isSessionRatelimited
+import server.models.UserSession
 import util.standardDateFormat
 import util.toString
 import java.util.*
@@ -42,7 +42,7 @@ fun Route.authRouting() {
             if (isSessionRatelimited(visit, 10)) return@get call.respond(HttpStatusCode.TooManyRequests, "You have gone over your rate limit.")
 
             call.sessions.set(userSession?.copy(count = userSession.count + 1))
-            call.respond("Success! Hello, ${userSession?.name}! Your visit count is ${userSession?.count}. Your session will expire on: ${date?.toString(standardDateFormat)}.")
+            call.respond("Success! Hello, ${userSession?.name}! Your visit count is ${userSession?.count}. Your session will expire on: ${date.toString(standardDateFormat)}.")
         }
     }
 

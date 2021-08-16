@@ -1,4 +1,4 @@
-package main.data
+package server.data
 
 import io.ktor.auth.*
 import io.ktor.util.*

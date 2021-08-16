@@ -1,6 +1,4 @@
-package main.extensions
-
-import io.ktor.routing.*
+package server.extensions
 
 fun isSessionRatelimited(visit: Int, limit: Int): Boolean {
     if (visit > limit) {

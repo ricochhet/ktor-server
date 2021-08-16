@@ -1,14 +1,17 @@
 package main
 
-import main.routes.registerAuthRoutes
+// Base server imports
+import server.routes.registerAuthRoutes
+import server.extensions.statusHandler
+import server.models.UserSession
+import server.data.hashedUserTable
+
+// Specific server imports
 import main.routes.registerGenericRoutes
 import main.routes.registerCustomerRoutes
 import main.routes.registerOrderRoutes
 
-import main.models.UserSession
-import main.data.hashedUserTable
-import main.extensions.statusHandler
-
+// Generic imports
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.features.*

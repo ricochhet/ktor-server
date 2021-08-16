@@ -1,4 +1,4 @@
-package main.extensions
+package server.extensions
 
 import io.ktor.application.*
 import io.ktor.auth.*
