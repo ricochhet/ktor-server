@@ -7,6 +7,7 @@ import main.routes.registerOrderRoutes
 
 import main.models.UserSession
 import main.data.hashedUserTable
+import main.extensions.statusHandler
 
 import io.ktor.application.*
 import io.ktor.auth.*
@@ -15,11 +16,24 @@ import io.ktor.http.*
 import io.ktor.response.*
 import io.ktor.serialization.*
 import io.ktor.sessions.*
-import main.extensions.statusHandler
+import io.ktor.util.*
+import java.security.Security
+import org.slf4j.event.Level
+import io.github.cdimascio.dotenv.dotenv
+import java.io.File
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
 fun Application.module(testing: Boolean = false) {
+    // Initialize dotenv module
+    val dotenv = dotenv()
+    val signature = dotenv["SIGN_KEY_0"]
+
+    // Prevents: WARN  io.ktor.util.random - NativePRNGNonBlocking is not found, fallback to SHA1PRNG
+    // I'm not too sure if there's any notable security issues from this. But it works.
+    System.setProperty("io.ktor.random.secure.random.provider", "DRBG")
+    Security.setProperty("securerandom.drbg.config", "HMAC_DRBG,SHA-512,256,pr_and_reseed")
+
     install(CORS) {
         anyHost()
     }
@@ -28,12 +42,32 @@ fun Application.module(testing: Boolean = false) {
         json()
     }
 
+    install(CallLogging) {
+        // Configure call logging
+        level = Level.INFO
+    }
+
     install(Sessions) {
         // Configure session cookies
-        cookie<UserSession>("user_session") {
+
+        // See: https://ktor.io/docs/cookie-header.html, https://ktor.io/docs/client-server.html, https://ktor.io/docs/storages.html
+        cookie<UserSession>("user_session", storage = directorySessionStorage(File(".sessions"))) {
             cookie.path = "/"
             cookie.maxAgeInSeconds = 60
+
+            // Uncomment this if you plan to use the server in prod.
+            // cookie.secure = true
+
+            // See: https://ktor.io/docs/transformers.html
+            transform(SessionTransportTransformerMessageAuthentication(hex(signature)))
         }
+
+        // Unused, can be used in replacement of cookie, See: https://ktor.io/docs/cookie-header.html
+        // Quote: "Cookies suit better for plain HTML applications while custom headers are intended for APIs."
+
+        /*header<UserSession>("user_session", storage = directorySessionStorage(File(".sessions"))) {
+            transform(SessionTransportTransformerMessageAuthentication(hex(signature)))
+        }*/
     }
 
     install(Authentication) {

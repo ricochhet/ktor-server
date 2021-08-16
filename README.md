@@ -10,6 +10,7 @@ certain things may not be the most optimally done.
 - Clone the repository `git clone https://github.com/ricochhet/ktor-server.git`
 - Open the root directory of the repository in Intellij. 
   - If you need to set the SDK: `File > Project Structure > Project SDK > Add SDK > JDK > /Path/To/JDK`
+- Setup the `.env.example` by renaming it to `.env` and changing `SIGN_KEY_0` to your own key.
 - Run `gradlew build` to install required dependencies and build the project.
 - To run, use `gradlew run` or right-click the `Application.kt` if you're using Intellij.
 

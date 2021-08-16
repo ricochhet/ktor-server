@@ -11,14 +11,10 @@ import io.ktor.response.*
 
 val date: Date = getCurrentDateTime()
 val dateInString: String = date.toString(standardDateFormat)
-val ROOT_MSG = """
-    Welcome to the API server.
-    ------------------------------------
-    SysTime : $dateInString
-""".trimIndent()
+val ROOT_MSG = "SysTime : $dateInString"
 
 fun StatusPages.Configuration.statusHandler(vararg code: HttpStatusCode) {
     status(*code) { status ->
-        call.respond("${status.value} ${status.description}")
+        call.respond(status, "${status.value} ${status.description}")
     }
 }
