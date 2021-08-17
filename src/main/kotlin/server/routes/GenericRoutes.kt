@@ -1,15 +1,14 @@
-package main.routes
+package server.routes
 
 import io.ktor.application.*
+import io.ktor.http.*
 import io.ktor.response.*
 import io.ktor.routing.*
-
-import server.extensions.ROOT_MSG
 
 fun Route.genericRouting() {
     route("/") {
         get {
-            call.respond(ROOT_MSG);
+            call.respond(HttpStatusCode.OK);
         }
     }
 }

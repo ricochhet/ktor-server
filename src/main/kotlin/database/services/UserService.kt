@@ -11,7 +11,7 @@ class UserService {
 
     fun addUser(user: User) = transaction {
         UserEntity.new {
-            this.username = user.username
+            this.email = user.email
             this.password = user.password
         }
     }
