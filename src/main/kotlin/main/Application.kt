@@ -1,6 +1,8 @@
 package main
 
 // Base server imports
+import database.initializeDatabase
+import database.services.bindServices
 import server.routes.registerAuthRoutes
 import server.extensions.statusHandler
 import server.models.UserSession
@@ -24,12 +26,16 @@ import java.security.Security
 import org.slf4j.event.Level
 import io.github.cdimascio.dotenv.dotenv
 import io.ktor.websocket.*
+import org.kodein.di.ktor.di
 import socket.routes.registerSocketRoutes
 import java.io.File
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
 fun Application.module(testing: Boolean = false) {
+    // Initialize our Database model
+    initializeDatabase()
+
     // Initialize dotenv module
     val dotenv = dotenv()
     val signature = dotenv["SIGN_KEY_0"]
@@ -102,16 +108,21 @@ fun Application.module(testing: Boolean = false) {
         }
 
         // Specify statuses to use a generic handle
-        statusHandler(HttpStatusCode.NotFound, HttpStatusCode.Unauthorized)
+        statusHandler(HttpStatusCode.NotFound, HttpStatusCode.Unauthorized, HttpStatusCode.UnsupportedMediaType)
+    }
+
+    di {
+        bindServices()
     }
 
     // Authentication routes
     registerAuthRoutes(
-        baseAuthLevel = "auth-basic",
-        validAuthLevel = "auth-session",
-        baseAuthPath = "/login",
-        validAuthPath = "/success",
-        closeAuthPath = "/logout"
+        loginAuthLevel = "auth-basic",
+        successAuthLevel = "auth-session",
+        loginPath = "/login",
+        successPath = "/success",
+        logoutPath = "/logout",
+        registerPath = "/register"
     )
 
     // Generic, non-specific routes
