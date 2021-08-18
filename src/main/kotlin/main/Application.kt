@@ -2,12 +2,13 @@ package main
 
 // Base server imports
 import database.initializeDatabase
+import database.models.Users
+import database.services.UserService
 import database.services.bindServices
 import server.routes.registerGenericRoutes
 import server.routes.registerAuthRoutes
 import server.extensions.statusHandler
 import server.cookies.SessionCookie
-import server.data.hashedUserTable
 
 // Specific server imports
 import main.routes.registerCustomerRoutes
@@ -26,8 +27,11 @@ import java.security.Security
 import org.slf4j.event.Level
 import io.github.cdimascio.dotenv.dotenv
 import io.ktor.websocket.*
+import org.kodein.di.instance
+import org.kodein.di.ktor.closestDI
 import org.kodein.di.ktor.di
 import socket.routes.registerSocketRoutes
+import util.crypto.sha256
 import java.io.File
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
@@ -77,13 +81,30 @@ fun Application.module(testing: Boolean = false) {
 
     if (useAuthRoutes == "TRUE") {
         install(Authentication) {
-            basic("auth-basic") {
+            basic("BasicUserAuthentication") {
                 realm = "Access to the '/' path"
                 validate { credentials ->
-                    hashedUserTable.authenticate(credentials)
+                    val userService by closestDI().instance<UserService>()
+                    val user = userService.findUserByEmail(credentials.name.sha256())
+
+                    if (user != null) {
+                        val name = credentials.name.sha256()
+                        val password = credentials.password.sha256()
+
+                        val dbUser = user[Users.email]
+                        val dbPassword = user[Users.password]
+
+                        if (name == dbUser && password == dbPassword) {
+                            UserIdPrincipal(credentials.name)
+                        } else {
+                            null
+                        }
+                    } else {
+                        null
+                    }
                 }
             }
-            session<SessionCookie>("auth-session") {
+            session<SessionCookie>("SessionUserAuthentication") {
                 validate { session ->
                     session
                 }
@@ -101,7 +122,7 @@ fun Application.module(testing: Boolean = false) {
         }
 
         statusHandler(HttpStatusCode.NotFound, HttpStatusCode.Unauthorized, HttpStatusCode.UnsupportedMediaType,
-        HttpStatusCode.BadRequest, HttpStatusCode.OK, HttpStatusCode.Accepted)
+        HttpStatusCode.BadRequest, HttpStatusCode.OK, HttpStatusCode.Accepted, HttpStatusCode.Conflict)
     }
 
     di {
@@ -110,8 +131,8 @@ fun Application.module(testing: Boolean = false) {
 
     if (useAuthRoutes == "TRUE") {
         registerAuthRoutes(
-            loginAuthLevel = "auth-basic",
-            successAuthLevel = "auth-session",
+            loginAuthLevel = "BasicUserAuthentication",
+            successAuthLevel = "SessionUserAuthentication",
             loginPath = "/login",
             successPath = "/success",
             logoutPath = "/logout",

@@ -2,6 +2,7 @@ package server.routes
 
 import database.models.User
 import database.services.UserService
+import io.github.cdimascio.dotenv.dotenv
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.features.*
@@ -14,42 +15,52 @@ import org.kodein.di.instance
 import org.kodein.di.ktor.closestDI
 import server.cookies.SessionCookie
 import util.patterns.isValidEmail
+import util.patterns.isValidPassword
 
-fun Route.authRouting(loginAuthLevel: String = "auth-basic", successAuthLevel: String = "auth-session", loginPath: String = "/login", successPath: String = "/success", logoutPath: String = "/logout", registerPath: String = "/register") {
+fun Route.authRouting(loginAuthLevel: String, successAuthLevel: String, loginPath: String, successPath: String, logoutPath: String, registerPath: String) {
+    val dotenv = dotenv()
+
     route(registerPath) {
         val userService by closestDI().instance<UserService>()
 
         get {
-            try {
+            runCatching {
                 val allUsers = userService.getAllUsers()
                 call.respond(HttpStatusCode.OK, allUsers)
-            } catch (e: Exception) {
+            }.getOrElse {
                 call.respond(HttpStatusCode.BadRequest)
             }
         }
 
         post {
-            try {
+            runCatching {
                 val userRequest = call.receive<User>()
                 val emailValidator = userRequest.email.isValidEmail()
+                val passwordValidator = userRequest.password.isValidPassword(dotenv["MIN_PASSWORD_LENGTH"].toInt())
 
-                if (emailValidator) {
-                    userService.addUser(userRequest)
-                    call.respond(HttpStatusCode.Accepted)
+                if (emailValidator && passwordValidator) {
+                    val user = userService.findUserByEmail(userRequest.email)
+
+                    if (user == null) {
+                        userService.addUser(userRequest)
+                        call.respond(HttpStatusCode.Accepted)
+                    } else {
+                        call.respond(HttpStatusCode.Conflict)
+                    }
                 } else {
                     call.respond(HttpStatusCode.BadRequest)
                 }
-            } catch (e: Exception) {
+            }.getOrElse {
                 call.respond(HttpStatusCode.BadRequest)
             }
         }
 
         delete("{id}") {
-            try {
+            runCatching {
                 val userId = call.parameters["id"]?.toIntOrNull() ?: throw NotFoundException()
                 userService.deleteUser(userId)
                 call.respond(HttpStatusCode.OK)
-            } catch (e: Exception) {
+            }.getOrElse {
                 call.respond(HttpStatusCode.BadRequest)
             }
         }
@@ -88,7 +99,7 @@ fun Route.authRouting(loginAuthLevel: String = "auth-basic", successAuthLevel: S
     }
 }
 
-fun Application.registerAuthRoutes(loginAuthLevel: String = "auth-basic", successAuthLevel: String = "auth-session", loginPath: String = "/login", successPath: String = "/success", logoutPath: String = "/logout", registerPath: String = "/register") {
+fun Application.registerAuthRoutes(loginAuthLevel: String, successAuthLevel: String, loginPath: String, successPath: String, logoutPath: String, registerPath: String) {
     routing {
         authRouting(loginAuthLevel, successAuthLevel, loginPath, successPath, logoutPath, registerPath)
     }

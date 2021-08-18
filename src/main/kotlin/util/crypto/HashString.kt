@@ -1,4 +1,4 @@
-package util
+package util.crypto
 
 import java.security.MessageDigest
 
