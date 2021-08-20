@@ -8,6 +8,7 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
+import util.logging.KotlinLogger
 
 fun Application.initializeDatabase() {
     val dbConfig = HikariConfig("./src/main/resources/hikari.properties")
@@ -15,9 +16,10 @@ fun Application.initializeDatabase() {
 
     Database.connect(dataSource)
     createDatabaseTables()
-    LoggerFactory.getLogger(Application::class.simpleName).info("Initialized Database")
+    KotlinLogger.info("Initialized Database")
 }
 
 private fun createDatabaseTables() = transaction {
     SchemaUtils.create(Users)
+    KotlinLogger.info("Database: create table 'users'")
 }
